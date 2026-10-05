@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DPSELL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+:root {
+  --bg: #ffffff;
+  --ink: #121212;
+  --muted: #6b6b6b;
+  --line: #e6e6e6;
+  --soft: #f3f3f3;
+  --sale: #b42318;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: Inter, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; color: inherit; }
+img, video { max-width: 100%; display: block; }
+
+.announcement {
+  background: var(--ink);
+  color: #fff;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 72px;
+  padding: 0 32px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+.header-side { display: flex; align-items: center; gap: 22px; flex: 1; }
+.header-side.right { justify-content: flex-end; }
+.logo {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.menu { display: flex; gap: 22px; font-size: 14px; }
+.menu a { padding: 8px 0; border-bottom: 1px solid transparent; }
+.menu a.active, .menu a:hover { border-bottom-color: var(--ink); }
+.header-tools, .account { display: flex; align-items: center; gap: 2px; }
+.menu-btn.icon-btn { display: none; }
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+.icon-btn svg { width: 22px; height: 22px; }
+.cart-btn span {
+  position: absolute;
+  top: 4px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 99px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.search-panel {
+  border-bottom: 1px solid var(--line);
+  padding: 12px 28px 16px;
+  background: #fff;
+}
+.search-panel input {
+  width: min(720px, 100%);
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  padding: 10px 0;
+  outline: none;
+  font-size: 16px;
+}
+
+.banner {
+  min-height: 420px;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 16px;
+  padding: 72px 8vw;
+  background: #111;
+  color: #fff;
+}
+.banner h1 { font-size: clamp(40px, 6vw, 68px); line-height: 1.02; font-weight: 500; margin: 0; letter-spacing: -0.03em; }
+.banner .btn.ghost { background: #fff; color: #111; border-color: #fff; }
+
+.wrap { padding: 48px 28px 80px; max-width: 1440px; margin: 0 auto; }
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 22px; }
+.section-head h2, .buy-box h1, .drawer-head h2 { font-weight: 500; letter-spacing: -0.02em; }
+.section-head h2 { margin: 0; font-size: 28px; }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px 14px;
+}
+.card { position: relative; }
+.media { position: relative; }
+.thumb {
+  aspect-ratio: 1;
+  background: var(--soft);
+  overflow: hidden;
+  position: relative;
+}
+.thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.35s ease; }
+.card:hover .thumb img { transform: scale(1.04); }
+.thumb-label { display: grid; place-items: center; height: 100%; letter-spacing: 0.14em; text-transform: uppercase; font-size: 12px; color: var(--muted); }
+.quick-add {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 0;
+  background: #fff;
+  padding: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: 0.2s ease;
+}
+.card:hover .quick-add, .quick-add:focus { opacity: 1; transform: none; }
+.card-body { padding: 12px 0 0; }
+.title { font-size: 15px; }
+.price { margin-top: 4px; font-size: 14px; }
+.badge { display: none; }
+
+.product-page {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 48px;
+  padding-top: 18px;
+}
+.crumbs { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+.crumbs a:hover { color: var(--ink); }
+.gallery { background: var(--soft); }
+.gallery img, .gallery video { width: 100%; min-height: 460px; object-fit: cover; }
+.buy-box h1 { margin: 8px 0 12px; font-size: 40px; }
+.buy-box .price { font-size: 18px; margin: 0 0 16px; }
+.vendor { margin: 0; color: var(--muted); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.desc { color: #333; line-height: 1.6; }
+
+.btn {
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+  padding: 14px 22px;
+  font-weight: 500;
+}
+.btn.block { width: 100%; margin-top: 10px; }
+.btn.ghost { background: #fff; color: var(--ink); }
+.btn:hover { opacity: 0.88; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.field { display: grid; gap: 6px; margin: 14px 0; font-size: 13px; color: var(--muted); }
+.field input, .field select, .field textarea {
+  border: 1px solid var(--line);
+  padding: 12px;
+  background: #fff;
+  width: 100%;
+}
+
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 14px 8px; border-bottom: 1px solid var(--line); text-align: left; font-weight: 400; }
+.grid .empty { grid-column: 1 / -1; }
+
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 40px 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+.site-footer p { color: var(--muted); }
+.footer-links { display: flex; gap: 18px; font-size: 14px; }
+
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 40; }
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: min(420px, 100%);
+  background: #fff;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+}
+.drawer.open { transform: none; }
+.drawer-head, .drawer-foot { padding: 18px 20px; border-bottom: 1px solid var(--line); }
+.drawer-foot { border-bottom: 0; border-top: 1px solid var(--line); }
+.drawer-head { display: flex; justify-content: space-between; align-items: center; }
+.drawer-head h2 { margin: 0; font-size: 22px; }
+.drawer-body { flex: 1; overflow: auto; padding: 8px 20px; }
+.line { display: grid; grid-template-columns: 72px 1fr auto; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.line img, .line .ph { width: 72px; height: 72px; object-fit: cover; background: var(--soft); }
+.line button { border: 0; background: none; text-decoration: underline; cursor: pointer; padding: 0; font-size: 13px; }
+.subtotal { display: flex; justify-content: space-between; font-size: 16px; }
+.tax-note { color: var(--muted); font-size: 13px; }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: #fff;
+  padding: 12px 16px;
+  display: none;
+  z-index: 70;
+}
+
+.kicker { letter-spacing: 0.14em; text-transform: uppercase; font-size: 12px; color: var(--muted); }
+.muted, .back { color: var(--muted); }
+.hero-card { border: 1px solid var(--line); padding: 24px; }
+
+@media (max-width: 1100px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 860px) {
+  .header { padding: 0 12px; }
+  .menu-btn.icon-btn { display: grid; }
+  .menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    flex-direction: column;
+    padding: 12px 18px 18px;
+    gap: 12px;
+  }
+  .menu.open { display: flex; }
+  .grid, .product-page { grid-template-columns: 1fr 1fr; }
+  .product-page { grid-template-columns: 1fr; }
+  .banner { min-height: 320px; padding: 48px 20px; }
+  .wrap, .site-footer, .search-panel { padding-left: 16px; padding-right: 16px; }
+  .quick-add { opacity: 1; transform: none; }
+  .site-footer { flex-direction: column; }
+  .table { display: block; overflow-x: auto; }
+}
+@media (max-width: 560px) {
+  .grid { grid-template-columns: 1fr 1fr; gap: 12px 8px; }
+}
+
+.empty { padding: 48px 16px; text-align: center; color: var(--muted); }
+
+</style>
+</head>
+<body>
+  <div class="announcement">Instant digital delivery after UPI payment</div>
+  <header class="header">
+    <div class="header-side">
+      <button class="icon-btn menu-btn" type="button" id="menuBtn" aria-label="Menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+      <nav class="menu" id="navLinks">
+        <a href="#shop" data-nav="shop">Home</a>
+        <a href="#catalog" data-nav="catalog">Catalog</a>
+        <a href="#library" data-nav="library">Library</a>
+        <a href="#admin" data-nav="admin">Sell</a>
+      </nav>
+    </div>
+    <a class="logo" data-store href="#shop">DPSELL</a>
+    <div class="header-side right">
+      <div class="header-tools">
+      <button class="icon-btn" type="button" id="searchBtn" aria-label="Search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 16l4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+      <div class="account" data-auth></div>
+      <button class="icon-btn cart-btn" type="button" id="cartBtn" aria-label="Cart">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h15l-1.5 9h-12L5 4H2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="20" r="1.2" fill="currentColor"/><circle cx="17" cy="20" r="1.2" fill="currentColor"/></svg>
+        <span id="cartCount" hidden>0</span>
+      </button>
+      </div>
+    </div>
+  </header>
+  <form class="search-panel" id="searchPanel" hidden>
+    <input id="searchInput" type="search" placeholder="Search" autocomplete="off" />
+  </form>
+
+  <main id="app"></main>
+
+  <footer class="site-footer">
+    <div>
+      <strong data-store>DPSELL</strong>
+      <p>Digital products. Google account. UPI checkout.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#shop">Home</a>
+      <a href="#catalog">Catalog</a>
+      <a href="#library">Library</a>
+      <a href="#admin">Sell</a>
+    </div>
+  </footer>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Cart">
+    <div class="drawer-head">
+      <h2>Cart</h2>
+      <button class="icon-btn" type="button" id="cartClose" aria-label="Close">×</button>
+    </div>
+    <div id="cartLines" class="drawer-body"></div>
+    <div class="drawer-foot">
+      <div class="subtotal"><span>Subtotal</span><strong id="cartTotal">₹0</strong></div>
+      <p class="tax-note">Files unlock after payment.</p>
+      <label class="field">
+        <span>Mobile for UPI</span>
+        <input id="cartMobile" maxlength="10" inputmode="numeric" placeholder="9876543210" />
+      </label>
+      <button class="btn block" type="button" id="checkoutBtn">Checkout</button>
+    </div>
+  </aside>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+const DP = {
+  config: null,
+  supabase: null,
+  user: null,
+  profile: null,
+
+  async init() {
+    const res = await fetch("/api/config");
+    this.config = await res.json();
+    document.querySelectorAll("[data-store]").forEach((el) => {
+      el.textContent = this.config.storeName || "DPSELL";
+    });
+    if (!this.config.supabaseUrl || !this.config.supabaseAnonKey) {
+      this.toast("Supabase keys .env.example ya .env mein daalo");
+      return;
+    }
+    this.supabase = window.supabase.createClient(this.config.supabaseUrl, this.config.supabaseAnonKey);
+    const { data } = await this.supabase.auth.getSession();
+    this.user = data.session?.user || null;
+    if (this.user) {
+      const { data: profile } = await this.supabase.from("profiles").select("*").eq("id", this.user.id).maybeSingle();
+      this.profile = profile;
+    }
+    this.renderAuth();
+    return this;
+  },
+
+  token() {
+    return this.supabase?.auth.getSession().then((r) => r.data.session?.access_token || "");
+  },
+
+  async api(path, options = {}) {
+    const token = await this.token();
+    const res = await fetch(path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(options.headers || {})
+      }
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || "Request failed");
+    return json;
+  },
+
+  async login() {
+    const redirectTo = window.location.origin + window.location.pathname;
+    await this.supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
+  },
+
+  async logout() {
+    await this.supabase.auth.signOut();
+    location.reload();
+  },
+
+  renderAuth() {
+    const box = document.querySelector("[data-auth]");
+    if (!box) return;
+    const person = `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 19c1.4-3 3.8-4.5 7-4.5S17.6 16 19 19" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>`;
+    if (this.user) {
+      box.innerHTML = `
+        <a class="icon-btn" href="#library" aria-label="Library">${person}</a>
+        ${this.profile?.is_admin ? '<a class="icon-btn" href="#admin" aria-label="Sell">+</a>' : ""}
+        <button class="icon-btn" type="button" id="logoutBtn" aria-label="Logout">×</button>
+      `;
+      document.getElementById("logoutBtn")?.addEventListener("click", () => this.logout());
+    } else {
+      box.innerHTML = `<button class="icon-btn" type="button" id="loginBtn" aria-label="Account">${person}</button>`;
+      document.getElementById("loginBtn")?.addEventListener("click", () => this.login());
+    }
+  },
+
+  coverUrl(path) {
+    if (!path) return "";
+    return `${this.config.supabaseUrl}/storage/v1/object/public/covers/${path}`;
+  },
+
+  rupee(n) {
+    return `₹${Number(n).toFixed(0)}`;
+  },
+
+  esc(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  },
+
+  toast(msg) {
+    let el = document.querySelector(".toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.className = "toast";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.display = "block";
+    setTimeout(() => {
+      el.style.display = "none";
+    }, 2800);
+  }
+};
+
+window.DP = DP;
+
+const Store = {
+  products: [],
+  pollTimer: null,
+  query: "",
+  type: "",
+  cart: [],
+
+  route() {
+    const raw = (location.hash || "#shop").replace(/^#/, "");
+    const [name, id] = raw.split("/");
+    const params = new URLSearchParams(location.search);
+    if (name === "product" && !id && params.get("id")) return { name: "product", id: params.get("id") };
+    if (name === "success" && !id && params.get("order")) return { name: "success", id: params.get("order") };
+    return { name: name || "shop", id: id || "" };
+  },
+
+  go(hash) {
+    if (location.hash === hash) this.render();
+    else location.hash = hash;
+  },
+
+  shell(inner) {
+    document.getElementById("app").innerHTML = inner;
+  },
+
+  markNav() {
+    const { name } = this.route();
+    document.querySelectorAll("[data-nav]").forEach((a) => {
+      a.classList.toggle("active", a.dataset.nav === name || (name === "product" && a.dataset.nav === "shop"));
+    });
+  },
+
+  async render() {
+    clearTimeout(this.pollTimer);
+    this.markNav();
+    const { name, id } = this.route();
+    if (name === "product") return this.product(id);
+    if (name === "library") return this.library();
+    if (name === "admin") return this.admin();
+    if (name === "success") return this.success(id);
+    await this.shop();
+    if (name === "catalog") document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth" });
+  },
+
+  async shop() {
+    document.title = DP.config?.storeName || "DPSELL";
+    this.shell(`
+      <section class="banner">
+        <p class="eyebrow">Digital store</p>
+        <h1>Images, PDFs,<br>files and video.</h1>
+        <a class="btn ghost" href="#catalog">Shop all</a>
+      </section>
+      <section class="wrap" id="catalog">
+        <div class="section-head">
+          <h2>Products</h2>
+          <div class="filters" id="filters">
+            <button class="chip" type="button" data-type="">All</button>
+            <button class="chip" type="button" data-type="image">Image</button>
+            <button class="chip" type="button" data-type="pdf">PDF</button>
+            <button class="chip" type="button" data-type="file">File</button>
+            <button class="chip" type="button" data-type="video">Video</button>
+          </div>
+        </div>
+        <div class="grid" id="grid"></div>
+      </section>
+    `);
+    document.getElementById("filters").onclick = (e) => {
+      const btn = e.target.closest("[data-type]");
+      if (!btn) return;
+      this.type = btn.dataset.type;
+      this.drawProducts();
+    };
+    if (!DP.supabase) {
+      document.getElementById("grid").innerHTML = '<div class="empty">Supabase keys .env.example ya .env mein daalo.</div>';
+      return;
+    }
+    const { data, error } = await DP.supabase.from("products").select("*").eq("is_active", true).order("created_at", { ascending: false });
+    if (error) return DP.toast(error.message);
+    this.products = data || [];
+    this.drawProducts();
+  },
+
+  drawProducts() {
+    const grid = document.getElementById("grid");
+    if (!grid) return;
+    document.querySelectorAll("#filters .chip").forEach((chip) => {
+      chip.classList.toggle("on", chip.dataset.type === this.type);
+    });
+    const q = this.query.trim().toLowerCase();
+    const list = this.products.filter((p) => {
+      const hay = `${p.title} ${p.description || ""} ${p.product_type}`.toLowerCase();
+      return (!this.type || p.product_type === this.type) && (!q || hay.includes(q));
+    });
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty">Koi product nahi mila.</div>';
+      return;
+    }
+    grid.innerHTML = list.map((p) => `
+      <article class="card">
+        <div class="media">
+          <a class="thumb" href="#product/${DP.esc(p.id)}">
+            ${p.cover_path ? `<img src="${DP.esc(DP.coverUrl(p.cover_path))}" alt="" />` : `<span class="thumb-label">${DP.esc(p.product_type)}</span>`}
+          </a>
+          <button class="quick-add" type="button" data-add="${DP.esc(p.id)}">Add to cart</button>
+        </div>
+        <div class="card-body">
+          <a class="title" href="#product/${DP.esc(p.id)}">${DP.esc(p.title)}</a>
+          <div class="price">${DP.rupee(p.price)}</div>
+        </div>
+      </article>
+    `).join("");
+    grid.querySelectorAll("[data-add]").forEach((btn) => {
+      btn.onclick = () => {
+        const product = this.products.find((p) => p.id === btn.dataset.add);
+        if (product) this.addToCart(product);
+      };
+    });
+  },
+
+  async product(id) {
+    this.shell('<main class="wrap product-page" id="page"><div class="empty">Loading…</div></main>');
+    if (!id || !DP.supabase) {
+      this.shell('<main class="wrap"><div class="empty">Product nahi mila.</div></main>');
+      return;
+    }
+    const { data: p, error } = await DP.supabase.from("products").select("*").eq("id", id).maybeSingle();
+    if (error || !p) {
+      this.shell('<main class="wrap"><div class="empty">Product nahi mila.</div></main>');
+      return;
+    }
+    document.title = p.title + " — " + (DP.config?.storeName || "DPSELL");
+    this.shell(`
+      <main class="wrap">
+        <div class="crumbs"><a href="#shop">Home</a> / ${DP.esc(p.title)}</div>
+        <div class="product-page">
+          <div class="gallery">
+            ${p.cover_path ? `<img src="${DP.esc(DP.coverUrl(p.cover_path))}" alt="" />` : `<div class="empty">${DP.esc(p.product_type)}</div>`}
+          </div>
+          <div class="buy-box">
+            <p class="vendor">${DP.esc(p.product_type)}</p>
+            <h1>${DP.esc(p.title)}</h1>
+            <div class="price">${DP.rupee(p.price)}</div>
+            <p class="desc">${DP.esc(p.description || "Digital file. Download unlocks after payment.")}</p>
+            <button class="btn block" type="button" id="addBtn">Add to cart</button>
+            <button class="btn block ghost" type="button" id="buyNowBtn">Buy it now</button>
+            <div id="buyNowBox" hidden>
+              <label class="field"><span>Mobile for UPI</span><input id="mobile" maxlength="10" inputmode="numeric" placeholder="9876543210" /></label>
+              <button class="btn block" type="button" id="buyBtn">Pay with UPI</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    `);
+    document.getElementById("addBtn").onclick = () => this.addToCart(p);
+    document.getElementById("buyNowBtn").onclick = () => {
+      document.getElementById("buyNowBox").hidden = false;
+    };
+    document.getElementById("buyBtn").onclick = () => this.buy(p.id, document.getElementById("mobile").value);
+  },
+
+  loadCart() {
+    try {
+      this.cart = JSON.parse(localStorage.getItem("dpsell_cart") || "[]");
+    } catch {
+      this.cart = [];
+    }
+    this.paintCart();
+  },
+
+  addToCart(product) {
+    if (!this.cart.some((item) => item.id === product.id)) {
+      this.cart.push({
+        id: product.id,
+        title: product.title,
+        price: product.price,
+        cover: product.cover_path || ""
+      });
+    }
+    localStorage.setItem("dpsell_cart", JSON.stringify(this.cart));
+    this.paintCart();
+    this.openCart();
+  },
+
+  removeFromCart(id) {
+    this.cart = this.cart.filter((item) => item.id !== id);
+    localStorage.setItem("dpsell_cart", JSON.stringify(this.cart));
+    this.paintCart();
+  },
+
+  paintCart() {
+    const count = document.getElementById("cartCount");
+    const lines = document.getElementById("cartLines");
+    const total = document.getElementById("cartTotal");
+    if (count) {
+      count.textContent = String(this.cart.length);
+      count.hidden = this.cart.length === 0;
+    }
+    if (total) {
+      const sum = this.cart.reduce((n, item) => n + Number(item.price || 0), 0);
+      total.textContent = DP.rupee(sum);
+    }
+    if (!lines) return;
+    if (!this.cart.length) {
+      lines.innerHTML = '<div class="empty">Your cart is empty.</div>';
+      return;
+    }
+    lines.innerHTML = this.cart.map((item) => `
+      <div class="line">
+        ${item.cover ? `<img src="${DP.esc(DP.coverUrl(item.cover))}" alt="" />` : `<div class="ph"></div>`}
+        <div>
+          <a href="#product/${DP.esc(item.id)}">${DP.esc(item.title)}</a>
+          <div>${DP.rupee(item.price)}</div>
+        </div>
+        <button type="button" data-remove="${DP.esc(item.id)}">Remove</button>
+      </div>
+    `).join("");
+    lines.querySelectorAll("[data-remove]").forEach((btn) => {
+      btn.onclick = () => this.removeFromCart(btn.dataset.remove);
+    });
+  },
+
+  openCart() {
+    document.getElementById("cartDrawer")?.classList.add("open");
+    const overlay = document.getElementById("overlay");
+    if (overlay) overlay.hidden = false;
+  },
+
+  closeCart() {
+    document.getElementById("cartDrawer")?.classList.remove("open");
+    const overlay = document.getElementById("overlay");
+    if (overlay) overlay.hidden = true;
+  },
+
+  async buy(productId, mobileValue) {
+    if (!DP.user) return DP.login();
+    const mobile = String(mobileValue || "").trim();
+    if (!/^\d{10}$/.test(mobile)) return DP.toast("10-digit mobile daalo");
+    try {
+      const out = await DP.api("/api/create-order", {
+        method: "POST",
+        body: JSON.stringify({ product_id: productId, mobile })
+      });
+      if (out.already_owned) {
+        this.go("#library");
+        return;
+      }
+      if (out.payment_url) location.href = out.payment_url;
+      else DP.toast("Payment link nahi mila");
+    } catch (e) {
+      DP.toast(e.message);
+    }
+  },
+
+  async library() {
+    document.title = "Library — DPSELL";
+    this.shell(`
+      <main class="wrap">
+        <div class="section-head"><h2>Your library</h2></div>
+        <div id="list"><div class="empty">Loading…</div></div>
+      </main>
+    `);
+    if (!DP.user) {
+      document.getElementById("list").innerHTML = '<div class="empty">Library ke liye Google login karo.</div>';
+      return;
+    }
+    const { data: orders, error } = await DP.supabase
+      .from("orders")
+      .select("*, products(*)")
+      .eq("user_id", DP.user.id)
+      .order("created_at", { ascending: false });
+    if (error) return DP.toast(error.message);
+    const paid = (orders || []).filter((o) => o.status === "paid");
+    const list = document.getElementById("list");
+    if (!list) return;
+    if (!paid.length) {
+      list.innerHTML = '<div class="empty">Abhi koi purchase nahi. Catalog se buy karo.</div>';
+      return;
+    }
+    list.innerHTML = `
+      <table class="table">
+        <tr><th>Product</th><th>Type</th><th>Amount</th><th></th></tr>
+        ${paid.map((o) => `
+          <tr>
+            <td>${DP.esc(o.products?.title || "")}</td>
+            <td>${DP.esc(o.products?.product_type || "")}</td>
+            <td>${DP.rupee(o.amount)}</td>
+            <td><button class="btn green" data-dl="${DP.esc(o.product_id)}" type="button">Download</button></td>
+          </tr>
+        `).join("")}
+      </table>
+    `;
+    list.querySelectorAll("[data-dl]").forEach((btn) => {
+      btn.onclick = () => this.download(btn.dataset.dl);
+    });
+  },
+
+  async download(productId) {
+    try {
+      const out = await DP.api("/api/download?product_id=" + encodeURIComponent(productId));
+      window.open(out.url, "_blank");
+    } catch (e) {
+      DP.toast(e.message);
+    }
+  },
+
+  async admin() {
+    document.title = "Sell — DPSELL";
+    this.shell(`
+      <main class="wrap">
+        <div class="section-head"><h2>Admin studio</h2></div>
+        <div id="gate"></div>
+        <div id="studio" hidden>
+          <div class="buy-box" style="margin-bottom:28px">
+            <div class="kicker">New product</div>
+            <div class="field"><label>Title</label><input id="title" placeholder="Premium Lightroom pack" /></div>
+            <div class="field"><label>Description</label><textarea id="desc" rows="3"></textarea></div>
+            <div class="field"><label>Type</label>
+              <select id="type">
+                <option value="image">Image</option>
+                <option value="pdf">PDF</option>
+                <option value="file">File / ZIP</option>
+                <option value="video">Video</option>
+              </select>
+            </div>
+            <div class="field"><label>Price (INR)</label><input id="price" type="number" min="1" value="99" /></div>
+            <div class="field"><label>Cover image</label><input id="cover" type="file" accept="image/*" /></div>
+            <div class="field"><label>Product file (pdf, zip, mp4, png…)</label><input id="file" type="file" /></div>
+            <button class="btn green" id="saveBtn" type="button">Publish product</button>
+          </div>
+          <h3>Orders</h3>
+          <div id="orders"></div>
+          <h3>Products</h3>
+          <div id="products"></div>
+        </div>
+      </main>
+    `);
+    if (!DP.user) {
+      document.getElementById("gate").innerHTML = '<div class="empty">Admin ke liye Google login karo.</div>';
+      return;
+    }
+    if (!DP.profile?.is_admin) {
+      document.getElementById("gate").innerHTML = '<div class="empty">Access nahi. Supabase Table Editor → profiles → apni row → is_admin = true</div>';
+      return;
+    }
+    document.getElementById("studio").hidden = false;
+    document.getElementById("saveBtn").onclick = () => this.publish();
+    await this.refreshAdmin();
+  },
+
+  async refreshAdmin() {
+    const { data: products } = await DP.supabase.from("products").select("*").order("created_at", { ascending: false });
+    const { data: orders } = await DP.supabase.from("orders").select("*, products(title)").order("created_at", { ascending: false }).limit(30);
+    const productsEl = document.getElementById("products");
+    const ordersEl = document.getElementById("orders");
+    if (!productsEl || !ordersEl) return;
+    productsEl.innerHTML = `
+      <table class="table">
+        <tr><th>Title</th><th>Type</th><th>Price</th><th>Active</th></tr>
+        ${(products || []).map((p) => `<tr><td>${DP.esc(p.title)}</td><td>${DP.esc(p.product_type)}</td><td>${DP.rupee(p.price)}</td><td>${p.is_active ? "yes" : "no"}</td></tr>`).join("")}
+      </table>
+    `;
+    ordersEl.innerHTML = `
+      <table class="table">
+        <tr><th>Order</th><th>Product</th><th>Amount</th><th>Status</th><th></th></tr>
+        ${(orders || []).map((o) => `
+          <tr>
+            <td>${DP.esc(o.public_id)}</td>
+            <td>${DP.esc(o.products?.title || "")}</td>
+            <td>${DP.rupee(o.amount)}</td>
+            <td>${DP.esc(o.status)}</td>
+            <td>${o.status === "pending" ? `<button class="btn ghost" type="button" data-paid="${DP.esc(o.public_id)}">Mark paid</button>` : ""}</td>
+          </tr>
+        `).join("")}
+      </table>
+    `;
+    ordersEl.querySelectorAll("[data-paid]").forEach((btn) => {
+      btn.onclick = () => this.markPaid(btn.dataset.paid);
+    });
+  },
+
+  async markPaid(orderId) {
+    try {
+      await DP.api("/api/admin/mark-paid", { method: "POST", body: JSON.stringify({ order_id: orderId }) });
+      DP.toast("Marked paid");
+      this.refreshAdmin();
+    } catch (e) {
+      DP.toast(e.message);
+    }
+  },
+
+  async publish() {
+    const title = document.getElementById("title").value.trim();
+    const description = document.getElementById("desc").value.trim();
+    const product_type = document.getElementById("type").value;
+    const price = Number(document.getElementById("price").value);
+    const cover = document.getElementById("cover").files[0];
+    const file = document.getElementById("file").files[0];
+    if (!title || !price || !file) return DP.toast("Title, price aur file zaroori hain");
+    const id = crypto.randomUUID();
+    const coverPath = cover ? `${id}/cover-${cover.name}` : null;
+    const filePath = `${id}/${file.name}`;
+    try {
+      if (cover) {
+        const upCover = await DP.supabase.storage.from("covers").upload(coverPath, cover, { upsert: true });
+        if (upCover.error) throw upCover.error;
+      }
+      const upFile = await DP.supabase.storage.from("downloads").upload(filePath, file, { upsert: true });
+      if (upFile.error) throw upFile.error;
+      const ins = await DP.supabase.from("products").insert({
+        id, title, description, product_type, price,
+        cover_path: coverPath, file_path: filePath, file_name: file.name, is_active: true
+      });
+      if (ins.error) throw ins.error;
+      DP.toast("Product live");
+      document.getElementById("title").value = "";
+      document.getElementById("desc").value = "";
+      this.refreshAdmin();
+    } catch (e) {
+      DP.toast(e.message);
+    }
+  },
+
+  async success(orderId) {
+    document.title = "Payment — DPSELL";
+    this.shell(`
+      <main class="wrap">
+        <div class="hero-card" id="box">
+          <div class="kicker">Checkout</div>
+          <h2>Payment confirm ho raha hai…</h2>
+          <p>UPI successful hone ke baad order paid mark hoga. Page khud check karta rahega.</p>
+          <p id="statusLine"></p>
+        </div>
+      </main>
+    `);
+    const tick = async () => {
+      if (this.route().name !== "success") return;
+      if (!DP.user || !orderId) return;
+      try {
+        const st = await DP.api("/api/order-status?order_id=" + encodeURIComponent(orderId));
+        if (st.status === "paid") {
+          this.go("#library");
+          return;
+        }
+        const line = document.getElementById("statusLine");
+        if (line) line.innerHTML = `Status: <strong>${DP.esc(st.status)}</strong>`;
+      } catch (e) {
+        DP.toast(e.message);
+      }
+      this.pollTimer = setTimeout(tick, 4000);
+    };
+    tick();
+  }
+};
+
+function legacyRedirect() {
+  const path = location.pathname;
+  const q = new URLSearchParams(location.search);
+  if (path.endsWith("product.html") && q.get("id")) location.replace("/#product/" + q.get("id"));
+  else if (path.endsWith("library.html")) location.replace("/#library");
+  else if (path.endsWith("admin.html")) location.replace("/#admin");
+  else if (path.endsWith("success.html") && q.get("order")) location.replace("/#success/" + q.get("order"));
+}
+
+async function boot() {
+  legacyRedirect();
+  Store.loadCart();
+  await DP.init();
+  if (!location.hash) location.hash = "#shop";
+  window.addEventListener("hashchange", () => Store.render());
+  document.getElementById("menuBtn").onclick = () => {
+    document.getElementById("navLinks").classList.toggle("open");
+  };
+  document.getElementById("navLinks").onclick = () => {
+    document.getElementById("navLinks").classList.remove("open");
+  };
+  document.getElementById("searchBtn").onclick = () => {
+    const panel = document.getElementById("searchPanel");
+    panel.hidden = !panel.hidden;
+    if (!panel.hidden) document.getElementById("searchInput").focus();
+  };
+  document.getElementById("searchPanel").onsubmit = (e) => {
+    e.preventDefault();
+    Store.query = document.getElementById("searchInput").value;
+    if (Store.route().name !== "shop" && Store.route().name !== "catalog") location.hash = "#shop";
+    else Store.drawProducts();
+  };
+  document.getElementById("searchInput").oninput = (e) => {
+    Store.query = e.target.value;
+    if (document.getElementById("grid")) Store.drawProducts();
+  };
+  document.getElementById("cartBtn").onclick = () => Store.openCart();
+  document.getElementById("cartClose").onclick = () => Store.closeCart();
+  document.getElementById("overlay").onclick = () => Store.closeCart();
+  document.getElementById("checkoutBtn").onclick = () => {
+    const item = Store.cart[0];
+    if (!item) return DP.toast("Cart empty hai");
+    Store.buy(item.id, document.getElementById("cartMobile").value);
+  };
+  Store.render();
+}
+
+boot();
+
+</script>
+</body>
+</html>
